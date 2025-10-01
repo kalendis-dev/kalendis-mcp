@@ -19,7 +19,6 @@ import {
 } from './generators/client.js';
 import { ENDPOINTS } from './endpoints.js';
 
-// Initialize MCP server
 const server = new Server(
   {
     name: 'kalendis-mcp',
@@ -32,7 +31,6 @@ const server = new Server(
   },
 );
 
-// Define available tools
 const TOOLS: Tool[] = [
   {
     name: 'generate-backend-client',
@@ -95,25 +93,21 @@ const TOOLS: Tool[] = [
   },
 ];
 
-// Handle tool listing
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: TOOLS,
 }));
 
-// Handle tool execution
 server.setRequestHandler(CallToolRequestSchema, async request => {
   const { name, arguments: args } = request.params;
 
   try {
     switch (name) {
       case 'generate-backend-client': {
-        // Default to production if not provided
         const environment = args?.environment || 'production';
         if (typeof environment !== 'string' || !['production', 'staging', 'development'].includes(environment)) {
           throw new Error('Valid environment is required (production, staging, development)');
         }
 
-        // Generate the client
         const code = generateBackendClient({
           environment: environment as Environment,
           typesImportPath: args?.typesImportPath as string | undefined,
@@ -131,7 +125,6 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
       }
 
       case 'generate-frontend-client': {
-        // Generate the frontend client
         const code = generateFrontendClient({
           typesImportPath: args?.typesImportPath as string | undefined,
         });
@@ -147,7 +140,6 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
       }
 
       case 'generate-api-routes': {
-        // Validate framework
         if (
           !args?.framework ||
           typeof args.framework !== 'string' ||
@@ -158,22 +150,16 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
 
         let code: string;
         if (args.framework === 'nextjs') {
-          // Generate Next.js routes
           const routes = generateNextjsRoutes(args.typesImportPath as string | undefined);
-          // Combine all route files into a single response
           code = Object.entries(routes)
             .map(([path, content]) => `// File: ${path}\n${content}`)
             .join('\n\n// ========================================\n\n');
         } else if (args.framework === 'express') {
-          // Generate Express routes
           code = generateExpressRoutes();
         } else if (args.framework === 'fastify') {
-          // Generate Fastify routes
           code = generateFastifyRoutes();
         } else if (args.framework === 'nestjs') {
-          // Generate NestJS module files
           const files = generateNestJSModule(args.typesImportPath as string | undefined);
-          // Combine all NestJS files into a single response
           code = Object.entries(files)
             .map(([path, content]) => `// File: ${path}\n${content}`)
             .join('\n\n// ========================================\n\n');
@@ -192,7 +178,6 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
       }
 
       case 'list-endpoints': {
-        // Format endpoints list
         const endpointsList = Object.entries(ENDPOINTS)
           .map(([name, endpoint]) => {
             const params = endpoint.params ? '\n    Query params: ' + Object.keys(endpoint.params).join(', ') : '';
@@ -229,7 +214,6 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
   }
 });
 
-// Start the server
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);

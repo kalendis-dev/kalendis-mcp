@@ -3,7 +3,6 @@
  * All dates are ISO 8601 strings to preserve timezone information
  */
 
-// ============= Enums =============
 export enum DaysOfWeek {
   SUNDAY = 'SUNDAY',
   MONDAY = 'MONDAY',
@@ -19,7 +18,6 @@ export enum Role {
   ADMIN = 'ADMIN'
 }
 
-// ============= Core Models =============
 export interface User {
   id: string;
   name: string;
@@ -91,9 +89,8 @@ export interface Account {
   lastUsageReset?: string;
 }
 
-// ============= API Request Types =============
 export interface AddUserRequest {
-  id?: string; // Optional, auto-generated if not provided
+  id?: string;
   name: string;
 }
 
@@ -124,8 +121,8 @@ export interface AddRecurringAvailabilityRequest {
   start: string;
   end: string;
   expiration?: string;
-  startDayOffset?: number; // Defaults to 0
-  endDayOffset?: number;   // Defaults to 0
+  startDayOffset?: number;
+  endDayOffset?: number;
   timeZone?: string;
 }
 
@@ -187,7 +184,6 @@ export interface UpdateAccountRequest {
   name?: string;
 }
 
-// ============= API Query Parameters =============
 export interface GetAvailabilityParams {
   userId?: string;
   start?: string;
@@ -210,19 +206,17 @@ export interface DeleteParams {
   id: string;
 }
 
-// ============= API Response Types =============
 export interface ApiError {
   error?: string;
   message?: string;
   statusCode?: number;
 }
 
-// ============= Calculated Availability Types =============
 export interface GetMultiUserCalculatedAvailabilityRequest {
   userIds: string[];
   start: string;
   end: string;
-  duration: number; // Duration in minutes
+  duration: number;
 }
 
 export interface GetRecurringAvailabilityByDateRequest {

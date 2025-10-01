@@ -9,7 +9,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
 
-// ============= Configuration =============
 export const BASE_URLS = {
   production: 'https://api.kalendis.dev',
   staging: 'https://dev-303703761.us-central1.run.app',
@@ -22,11 +21,10 @@ export type Framework = 'react' | 'nextjs' | 'express' | 'vanilla' | 'fastify' |
 export interface GenerateOptions {
   framework: Framework;
   environment: Environment;
-  typesImportPath?: string; // Optional, defaults to '../types'
-  outputDir?: string; // Where to write files
+  typesImportPath?: string;
+  outputDir?: string;
 }
 
-// ============= Timezone Conversion Helper =============
 function needsTimezoneConversion(methodName: string): boolean {
   return (
     methodName.includes('Availability') ||
@@ -36,11 +34,9 @@ function needsTimezoneConversion(methodName: string): boolean {
   );
 }
 
-// ============= Type Mapping =============
 function mapResponseType(type: string, useTypes: boolean = true): string {
   if (!useTypes) return type;
 
-  // Handle array types
   if (type.includes('[]')) {
     const baseType = type.replace('[]', '');
     if (isKnownType(baseType)) {
@@ -49,27 +45,22 @@ function mapResponseType(type: string, useTypes: boolean = true): string {
     return `${baseType}[]`;
   }
 
-  // Handle Array<T> syntax
   if (type.startsWith('Array<')) {
     const innerType = type.slice(6, -1);
     if (isKnownType(innerType)) {
       return `Types.${innerType}[]`;
     }
-    // Complex nested type - define inline
     return type;
   }
 
-  // Handle known model types
   if (isKnownType(type)) {
     return `Types.${type}`;
   }
 
-  // Handle inline object types
   if (type.startsWith('{') && type.endsWith('}')) {
     return type;
   }
 
-  // Complex types that need to stay as-is
   return type;
 }
 
@@ -78,34 +69,25 @@ function isKnownType(type: string): boolean {
   return knownTypes.includes(type);
 }
 
-// ============= Type Helpers =============
 function generateParamType(param: { type: string; required: boolean }): string {
   const tsType = param.type === 'number' ? 'number' : param.type === 'boolean' ? 'boolean' : 'string';
   return param.required ? tsType : `${tsType} | undefined`;
 }
 
 function generateBodyType(field: { type: string; required: boolean }): string {
-  // Handle array types
   if (field.type.includes('[]')) {
     const baseType = field.type.replace('[]', '');
     const mappedType = field.type === 'DaysOfWeek[]' ? 'Types.DaysOfWeek[]' : `${baseType}[]`;
     return field.required ? mappedType : `${mappedType} | undefined`;
   }
 
-  // Handle basic types
   const tsType = field.type === 'number' ? 'number' : field.type === 'boolean' ? 'boolean' : 'string';
 
   return field.required ? tsType : `${tsType} | undefined`;
 }
 
-// ============= Base Client Template =============
 function generateBaseClient(environment: Environment, typesPath: string): string {
-  return `/**
- * Kalendis API Client
- * Auto-generated - Do not edit directly
- */
-
-import * as Types from '${typesPath}';
+  return `import * as Types from '${typesPath}';
 
 class KalendisClient {
   private readonly apiKey: string;
@@ -160,11 +142,9 @@ class KalendisClient {
   }`;
 }
 
-// ============= Method Generation =============
 function generateMethod(name: string, endpoint: EndpointDefinition): string {
   const returnType = mapResponseType(endpoint.response.type);
 
-  // GET with query parameters
   if (endpoint.method === 'GET' && endpoint.params) {
     const paramTypes = Object.entries(endpoint.params)
       .map(([key, param]) => `    ${key}?: ${generateParamType(param)};`)
@@ -187,7 +167,6 @@ ${paramTypes}
   }`;
   }
 
-  // DELETE with query parameters
   if (endpoint.method === 'DELETE' && endpoint.params) {
     const paramTypes = Object.entries(endpoint.params)
       .map(([key, param]) => `    ${key}: ${generateParamType(param)};`)
@@ -209,7 +188,6 @@ ${paramTypes}
   }`;
   }
 
-  // POST/PUT with body
   if ((endpoint.method === 'POST' || endpoint.method === 'PUT') && endpoint.body) {
     const bodyTypes = Object.entries(endpoint.body)
       .map(([key, field]) => `    ${key}${field.required ? '' : '?'}: ${generateBodyType(field)};`)
@@ -226,7 +204,6 @@ ${bodyTypes}
   }`;
   }
 
-  // Simple GET without parameters
   return `
   async ${name}(): Promise<${returnType}> {
     return this.request<${returnType}>('${endpoint.path}', {
@@ -235,12 +212,10 @@ ${bodyTypes}
   }`;
 }
 
-// ============= Backend Client Generator =============
 export function generateBackendClient(options: GenerateOptions): string {
   const typesPath = options.typesImportPath || '../types';
   const baseClient = generateBaseClient(options.environment, typesPath);
 
-  // Generate all methods
   const methods = Object.entries(ENDPOINTS)
     .map(([name, endpoint]) => generateMethod(name, endpoint))
     .join('\n');
@@ -249,30 +224,17 @@ export function generateBackendClient(options: GenerateOptions): string {
 ${methods}
 }
 
-// Export the class so users can instantiate with their API key
 export default KalendisClient;
-
-// Example usage:
-// const client = new KalendisClient({ apiKey: process.env.MY_API_KEY });
-// const users = await client.getUsers();
 `;
 }
 
-// ============= Complete Frontend Client Generator =============
 export function generateFrontendClient(options?: { typesImportPath?: string }): string {
   const typesPath = options?.typesImportPath || '../types';
 
-  return `/**
- * Frontend API Client
- * Calls your backend API, not Kalendis directly
- * Auto-generated - Do not edit directly
- */
-
-import * as Types from '${typesPath}';
+  return `import * as Types from '${typesPath}';
 import { convertToLocalTime } from '@kalendis/utils';
 
 export const api = {
-  // ========== User Management ==========
   getUsers: async (): Promise<Types.User[]> => {
     const response = await fetch('/api/users');
     if (!response.ok) throw new Error('Failed to fetch users');
@@ -307,7 +269,6 @@ export const api = {
     return response.json();
   },
 
-  // ========== Availability ==========
   getAvailability: async (params?: { userId?: string; start?: string; end?: string }): Promise<Types.Availability[]> => {
     const query = new URLSearchParams(params as any).toString();
     const response = await fetch('/api/availability' + (query ? '?' + query : ''));
@@ -404,7 +365,6 @@ export const api = {
     return response.json();
   },
 
-  // ========== Recurring Availability ==========
   getRecurringAvailability: async (userId: string): Promise<Types.RecurringAvailability[]> => {
     const response = await fetch(\`/api/recurring-availability?userId=\${userId}\`);
     if (!response.ok) throw new Error('Failed to fetch recurring availability');
@@ -458,7 +418,6 @@ export const api = {
     return response.json();
   },
 
-  // ========== Availability Exceptions ==========
   getAvailabilityException: async (userId: string): Promise<Types.AvailabilityException[]> => {
     const response = await fetch(\`/api/availability-exceptions?userId=\${userId}\`);
     if (!response.ok) throw new Error('Failed to fetch availability exceptions');
@@ -524,7 +483,6 @@ export const api = {
     return response.json();
   },
 
-  // ========== Bookings ==========
   getBookings: async (params: { userId: string; start: string; end?: string }): Promise<Types.Booking[]> => {
     const query = new URLSearchParams(params as any).toString();
     const response = await fetch('/api/bookings?' + query);
@@ -574,7 +532,6 @@ export const api = {
     return response.json();
   },
 
-  // ========== Account ==========
   getAccount: async (): Promise<Types.Account> => {
     const response = await fetch('/api/account');
     if (!response.ok) throw new Error('Failed to fetch account');
@@ -596,15 +553,12 @@ export default api;
 `;
 }
 
-// ============= Next.js Route Files Generator =============
 export function generateNextjsRoutes(typesPath: string = '@/lib/types'): Record<string, string> {
   const files: Record<string, string> = {};
 
-  // Users route
   files['app/api/users/route.ts'] = `import { NextRequest, NextResponse } from 'next/server';
 import KalendisClient from '@/lib/kalendisClient';
 
-// Initialize the client with your API key
 const kalendisClient = new KalendisClient({ 
   apiKey: process.env.KALENDIS_API_KEY! 
 });
@@ -650,11 +604,9 @@ export async function DELETE(request: NextRequest) {
   }
 }`;
 
-  // Bookings route
   files['app/api/bookings/route.ts'] = `import { NextRequest, NextResponse } from 'next/server';
 import KalendisClient from '@/lib/kalendisClient';
 
-// Initialize the client with your API key
 const kalendisClient = new KalendisClient({ 
   apiKey: process.env.KALENDIS_API_KEY! 
 });
@@ -717,11 +669,9 @@ export async function DELETE(request: NextRequest) {
   }
 }`;
 
-  // Availability route
   files['app/api/availability/route.ts'] = `import { NextRequest, NextResponse } from 'next/server';
 import KalendisClient from '@/lib/kalendisClient';
 
-// Initialize the client with your API key
 const kalendisClient = new KalendisClient({ 
   apiKey: process.env.KALENDIS_API_KEY! 
 });
@@ -828,11 +778,9 @@ export async function DELETE(request: NextRequest) {
   }
 }`;
 
-  // Account route
   files['app/api/account/route.ts'] = `import { NextRequest, NextResponse } from 'next/server';
 import KalendisClient from '@/lib/kalendisClient';
 
-// Initialize the client with your API key
 const kalendisClient = new KalendisClient({ 
   apiKey: process.env.KALENDIS_API_KEY! 
 });
@@ -859,7 +807,6 @@ export async function PUT(request: NextRequest) {
   return files;
 }
 
-// ============= File Writing Utilities =============
 async function askOverwrite(filePath: string): Promise<boolean> {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -887,7 +834,6 @@ export async function writeFile(filePath: string, content: string): Promise<void
     }
   }
 
-  // Ensure directory exists
   const dir = path.dirname(fullPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -897,29 +843,20 @@ export async function writeFile(filePath: string, content: string): Promise<void
   console.log(`✅ Written: ${fullPath}`);
 }
 
-// ============= Express Routes Generator =============
 export function generateExpressRoutes(): string {
-  return `/**
- * Express API Routes - Uses Kalendis client
- * Auto-generated - Do not edit directly
- */
-
-import { Request, Response, Router } from 'express';
+  return `import { Request, Response, Router } from 'express';
 import KalendisClient from './kalendisClient';
 
 const router = Router();
 
-// Initialize the client with your API key
 const kalendisClient = new KalendisClient({ 
-  apiKey: process.env.KALENDIS_API_KEY! 
+  apiKey: process.env.KALENDIS_API_KEY!
 });
 
-// Helper for consistent error handling
 const handleError = (error: any, res: Response) => {
   res.status(500).json({ error: error.message });
 };
 
-// ========== User Management ==========
 router.get('/api/users', async (req, res) => {
   try {
     const users = await kalendisClient.getUsersByAccountId();
@@ -958,7 +895,6 @@ router.delete('/api/users/:id', async (req, res) => {
   }
 });
 
-// ========== Availability ==========
 router.get('/api/availability', async (req, res) => {
   try {
     const availability = await kalendisClient.getAvailability(req.query as any);
@@ -1034,7 +970,6 @@ router.delete('/api/availability/:id', async (req, res) => {
   }
 });
 
-// ========== Recurring Availability ==========
 router.get('/api/recurring-availability', async (req, res) => {
   try {
     const availability = await kalendisClient.getRecurringAvailability(req.query as any);
@@ -1074,7 +1009,6 @@ router.delete('/api/recurring-availability/:id', async (req, res) => {
   }
 });
 
-// ========== Availability Exceptions ==========
 router.get('/api/availability-exceptions', async (req, res) => {
   try {
     const exceptions = await kalendisClient.getAvailabilityException(req.query as any);
@@ -1123,7 +1057,6 @@ router.delete('/api/availability-exceptions/:id', async (req, res) => {
   }
 });
 
-// ========== Bookings ==========
 router.get('/api/bookings', async (req, res) => {
   try {
     const bookings = await kalendisClient.getBooking(req.query as any);
@@ -1171,7 +1104,6 @@ router.delete('/api/bookings/:id', async (req, res) => {
   }
 });
 
-// ========== Account ==========
 router.get('/api/account', async (req, res) => {
   try {
     const account = await kalendisClient.getAccount();
@@ -1194,23 +1126,15 @@ export default router;
 `;
 }
 
-// ============= Fastify Routes Generator =============
 export function generateFastifyRoutes(): string {
-  return `/**
- * Fastify API Routes - Uses Kalendis client
- * Auto-generated - Do not edit directly
- */
-
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+  return `import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import KalendisClient from './kalendisClient';
 
-// Initialize the client with your API key
 const kalendisClient = new KalendisClient({ 
   apiKey: process.env.KALENDIS_API_KEY! 
 });
 
 export default async function routes(fastify: FastifyInstance) {
-  // ========== User Management ==========
   fastify.get('/api/users', async (request, reply) => {
     const users = await kalendisClient.getUsersByAccountId();
     return users;
@@ -1233,7 +1157,6 @@ export default async function routes(fastify: FastifyInstance) {
     return result;
   });
 
-  // ========== Availability ==========
   fastify.get('/api/availability', async (request, reply) => {
     const availability = await kalendisClient.getAvailability(request.query as any);
     return availability;
@@ -1277,7 +1200,6 @@ export default async function routes(fastify: FastifyInstance) {
     return result;
   });
 
-  // ========== Recurring Availability ==========
   fastify.get('/api/recurring-availability', async (request, reply) => {
     const availability = await kalendisClient.getRecurringAvailability(request.query as any);
     return availability;
@@ -1301,7 +1223,6 @@ export default async function routes(fastify: FastifyInstance) {
     return result;
   });
 
-  // ========== Availability Exceptions ==========
   fastify.get('/api/availability-exceptions', async (request, reply) => {
     const exceptions = await kalendisClient.getAvailabilityException(request.query as any);
     return exceptions;
@@ -1330,7 +1251,6 @@ export default async function routes(fastify: FastifyInstance) {
     return result;
   });
 
-  // ========== Bookings ==========
   fastify.get('/api/bookings', async (request, reply) => {
     const bookings = await kalendisClient.getBooking(request.query as any);
     return bookings;
@@ -1358,7 +1278,6 @@ export default async function routes(fastify: FastifyInstance) {
     return result;
   });
 
-  // ========== Account ==========
   fastify.get('/api/account', async (request, reply) => {
     const account = await kalendisClient.getAccount();
     return account;
@@ -1369,23 +1288,13 @@ export default async function routes(fastify: FastifyInstance) {
     return account;
   });
 }
-
-// Usage:
-// fastify.register(routes);
 `;
 }
 
-// ============= NestJS Module Generator =============
 export function generateNestJSModule(typesPath: string = '@/types'): Record<string, string> {
   const files: Record<string, string> = {};
 
-  // Controller file
-  files['kalendis.controller.ts'] = `/**
- * NestJS Controller for Kalendis API
- * Auto-generated - Do not edit directly
- */
-
-import { 
+  files['kalendis.controller.ts'] = `import { 
   Controller, 
   Get, 
   Post, 
@@ -1404,7 +1313,6 @@ import * as Types from '${typesPath}';
 export class KalendisController {
   constructor(private readonly kalendisService: KalendisService) {}
 
-  // ========== User Management ==========
   @Get('users')
   async getUsers() {
     return this.kalendisService.getUsersByAccountId();
@@ -1426,7 +1334,6 @@ export class KalendisController {
     return this.kalendisService.deleteUser({ id });
   }
 
-  // ========== Availability ==========
   @Get('availability')
   async getAvailability(@Query() query: { userId?: string; start?: string; end?: string }) {
     return this.kalendisService.getAvailability(query);
@@ -1468,7 +1375,6 @@ export class KalendisController {
     return this.kalendisService.deleteAvailability({ id, userId });
   }
 
-  // ========== Recurring Availability ==========
   @Get('recurring-availability')
   async getRecurringAvailability(@Query('userId') userId: string) {
     return this.kalendisService.getRecurringAvailability({ userId });
@@ -1490,7 +1396,6 @@ export class KalendisController {
     return this.kalendisService.deleteRecurringAvailability({ id, userId });
   }
 
-  // ========== Availability Exceptions ==========
   @Get('availability-exceptions')
   async getAvailabilityExceptions(@Query('userId') userId: string) {
     return this.kalendisService.getAvailabilityException({ userId });
@@ -1518,7 +1423,6 @@ export class KalendisController {
     return this.kalendisService.deleteAvailabilityException({ id, userId });
   }
 
-  // ========== Bookings ==========
   @Get('bookings')
   async getBookings(@Query() query: { userId: string; start: string; end?: string }) {
     return this.kalendisService.getBooking(query);
@@ -1545,7 +1449,6 @@ export class KalendisController {
     return this.kalendisService.deleteBooking({ id });
   }
 
-  // ========== Account ==========
   @Get('account')
   async getAccount() {
     return this.kalendisService.getAccount();
@@ -1558,13 +1461,7 @@ export class KalendisController {
 }
 `;
 
-  // Service file
-  files['kalendis.service.ts'] = `/**
- * NestJS Service for Kalendis API
- * Auto-generated - Do not edit directly
- */
-
-import { Injectable } from '@nestjs/common';
+  files['kalendis.service.ts'] = `import { Injectable } from '@nestjs/common';
 import KalendisClient from './kalendisClient';
 import * as Types from '${typesPath}';
 
@@ -1578,7 +1475,6 @@ export class KalendisService {
     });
   }
 
-  // User Management
   async getUsersByAccountId() {
     return this.kalendisClient.getUsersByAccountId();
   }
@@ -1595,7 +1491,6 @@ export class KalendisService {
     return this.kalendisClient.deleteUser(data);
   }
 
-  // Availability
   async getAvailability(params?: { userId?: string; start?: string; end?: string }) {
     return this.kalendisClient.getAvailability(params);
   }
@@ -1628,7 +1523,6 @@ export class KalendisService {
     return this.kalendisClient.deleteAvailability(data);
   }
 
-  // Recurring Availability
   async getRecurringAvailability(params: { userId: string }) {
     return this.kalendisClient.getRecurringAvailability(params);
   }
@@ -1645,7 +1539,6 @@ export class KalendisService {
     return this.kalendisClient.deleteRecurringAvailability(data);
   }
 
-  // Availability Exceptions
   async getAvailabilityException(params: { userId: string }) {
     return this.kalendisClient.getAvailabilityException(params);
   }
@@ -1666,7 +1559,6 @@ export class KalendisService {
     return this.kalendisClient.deleteAvailabilityException(data);
   }
 
-  // Bookings
   async getBooking(params: { userId: string; start: string; end?: string }) {
     return this.kalendisClient.getBooking(params);
   }
@@ -1687,7 +1579,6 @@ export class KalendisService {
     return this.kalendisClient.deleteBooking(data);
   }
 
-  // Account
   async getAccount() {
     return this.kalendisClient.getAccount();
   }
@@ -1698,30 +1589,16 @@ export class KalendisService {
 }
 `;
 
-  // Module file
-  files['kalendis.module.ts'] = `/**
- * NestJS Module for Kalendis API
- * Auto-generated - Do not edit directly
- */
-
-import { Module } from '@nestjs/common';
+  files['kalendis.module.ts'] = `import { Module } from '@nestjs/common';
 import { KalendisController } from './kalendis.controller';
 import { KalendisService } from './kalendis.service';
 
 @Module({
   controllers: [KalendisController],
   providers: [KalendisService],
-  exports: [KalendisService], // Export service if needed by other modules
+  exports: [KalendisService],
 })
 export class KalendisModule {}
-
-// Usage:
-// Import this module in your app.module.ts:
-// @Module({
-//   imports: [KalendisModule],
-//   ...
-// })
-// export class AppModule {}
 `;
 
   return files;

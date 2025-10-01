@@ -33,9 +33,6 @@ export interface EndpointDefinition {
 }
 
 export const ENDPOINTS: Record<string, EndpointDefinition> = {
-  // ============= USER ENDPOINTS =============
-  // Audited: src/routes/user.ts line 36-40
-  // Returns: { data, meta } (src/controllers/user/getUsersByAccountId.ts)
   getUsersByAccountId: {
     path: '/v1/user/getUsersByAccountId',
     method: 'GET',
@@ -47,8 +44,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // Audited: src/routes/user.ts line 90
-  // OpenAPI spec shows id and name are required
   addUser: {
     path: '/v1/user/addUser',
     method: 'POST',
@@ -64,7 +59,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/user.ts line 141
   updateUser: {
     path: '/v1/user/updateUser',
     method: 'PUT',
@@ -81,7 +75,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/user.ts line 183
   deleteUser: {
     path: '/v1/user/deleteUser',
     method: 'DELETE',
@@ -96,8 +89,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // ============= AVAILABILITY ENDPOINTS =============
-  // Audited: src/routes/availability.ts line 35
   getAvailability: {
     path: '/v1/availability/getAvailability',
     method: 'GET',
@@ -121,8 +112,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // Audited: src/routes/availability.ts line 55
-  // Returns uncalculated availability for all users
   getAllAvailability: {
     path: '/v1/availability/getAllAvailability',
     method: 'GET',
@@ -139,7 +128,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // Audited: src/routes/availability.ts line 83
   getMultiUserCalculatedAvailability: {
     path: '/v1/availability/getMultiUserCalculatedAvailability',
     method: 'POST',
@@ -157,7 +145,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/availability.ts line 114
   getRecurringAvailabilityByDate: {
     path: '/v1/availability/getRecurringAvailabilityByDate',
     method: 'POST',
@@ -177,7 +164,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/availability.ts line 138
   getMatchingAvailabilityByDate: {
     path: '/v1/availability/getMatchingAvailabilityByDate',
     method: 'POST',
@@ -195,7 +181,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/availability.ts line 154
   addAvailability: {
     path: '/v1/availability/addAvailability',
     method: 'POST',
@@ -213,7 +198,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/availability.ts line 171
   updateAvailability: {
     path: '/v1/availability/updateAvailability',
     method: 'PUT',
@@ -232,7 +216,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/availability.ts line 185
   deleteAvailability: {
     path: '/v1/availability/deleteAvailability',
     method: 'DELETE',
@@ -248,8 +231,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // ============= RECURRING AVAILABILITY ENDPOINTS =============
-  // Audited: src/routes/recurringAvailability.ts line 21
   getRecurringAvailability: {
     path: '/v1/recurringAvailability/getRecurringAvailability',
     method: 'GET',
@@ -264,7 +245,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // Audited: src/routes/recurringAvailability.ts line 43
   addRecurringAvailability: {
     path: '/v1/recurringAvailability/addRecurringAvailability',
     method: 'POST',
@@ -294,7 +274,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/recurringAvailability.ts line 66
   updateRecurringAvailability: {
     path: '/v1/recurringAvailability/updateRecurringAvailability',
     method: 'PUT',
@@ -326,7 +305,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/recurringAvailability.ts line 80
   deleteRecurringAvailability: {
     path: '/v1/recurringAvailability/deleteRecurringAvailability',
     method: 'DELETE',
@@ -342,8 +320,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // ============= AVAILABILITY EXCEPTION ENDPOINTS =============
-  // Audited: src/routes/availabilityException.ts line 25
   getAvailabilityException: {
     path: '/v1/availabilityException/getAvailabilityException',
     method: 'GET',
@@ -364,7 +340,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // Audited: src/routes/availabilityException.ts line 41
   addAvailabilityException: {
     path: '/v1/availabilityException/addAvailabilityException',
     method: 'POST',
@@ -382,7 +357,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/availabilityException.ts line 58
   addRecurringAvailabilityException: {
     path: '/v1/availabilityException/addRecurringAvailabilityException',
     method: 'POST',
@@ -401,7 +375,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/availabilityException.ts line 75
   updateAvailabilityException: {
     path: '/v1/availabilityException/updateAvailabilityException',
     method: 'PUT',
@@ -420,7 +393,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/availabilityException.ts line 89
   deleteAvailabilityException: {
     path: '/v1/availabilityException/deleteAvailabilityException',
     method: 'DELETE',
@@ -436,8 +408,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // ============= BOOKING ENDPOINTS =============
-  // Audited: src/routes/booking.ts line 24
   getBooking: {
     path: '/v1/booking/getBooking',
     method: 'GET',
@@ -454,7 +424,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // Audited: src/routes/booking.ts line 41
   getBookingsByIds: {
     path: '/v1/booking/getBookingsByIds',
     method: 'POST',
@@ -469,7 +438,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/booking.ts line 58
   addBooking: {
     path: '/v1/booking/addBooking',
     method: 'POST',
@@ -488,7 +456,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/booking.ts line 75
   updateBooking: {
     path: '/v1/booking/updateBooking',
     method: 'PUT',
@@ -507,7 +474,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key', 'Content-Type'],
   },
 
-  // Audited: src/routes/booking.ts line 88
   deleteBooking: {
     path: '/v1/booking/deleteBooking',
     method: 'DELETE',
@@ -522,8 +488,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // ============= ACCOUNT ENDPOINTS =============
-  // Audited: src/routes/account.ts line 17
   getAccount: {
     path: '/v1/account/getAccount',
     method: 'GET',
@@ -535,7 +499,6 @@ export const ENDPOINTS: Record<string, EndpointDefinition> = {
     headers: ['x-api-key'],
   },
 
-  // Audited: src/routes/account.ts line 30
   updateAccount: {
     path: '/v1/account/updateAccount',
     method: 'PUT',
