@@ -43,11 +43,11 @@
   },
   "dependencies": {
     "@kalendis/utils": "^1.0.0",
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "^1.18.2"
   },
   "devDependencies": {
-    "@types/node": "^20.10.5",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "@types/node": "^20.19.19",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }
