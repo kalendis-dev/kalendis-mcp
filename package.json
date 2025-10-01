@@ -1,0 +1,53 @@
+{
+  "name": "@kalendis/mcp",
+  "version": "1.0.5",
+  "description": "Simple MCP tool for Kalendis API integration - generates clean API clients with correct authentication",
+  "main": "dist/server.js",
+  "types": "dist/server.d.ts",
+  "bin": {
+    "kalendis-mcp": "dist/server.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/server.ts",
+    "start": "node dist/server.js",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "mcp",
+    "kalendis",
+    "api-client"
+  ],
+  "author": {
+    "name": "Kalendis",
+    "email": "support@kalendis.dev"
+  },
+  "homepage": "https://github.com/kalendis-dev/kalendis-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kalendis-dev/kalendis-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kalendis-dev/kalendis-mcp/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@kalendis/utils": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
