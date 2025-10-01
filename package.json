@@ -1,6 +1,6 @@
 {
   "name": "@kalendis/mcp",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Simple MCP tool for Kalendis API integration - generates clean API clients with correct authentication",
   "main": "dist/server.js",
   "types": "dist/server.d.ts",
